@@ -92,6 +92,35 @@ class FilesController {
     }
     return null;
   }
+
+  static async getShow (req, res) {
+    const user = await getUserByToken(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const id = req.params.id;
+    const file = await dbClient.filesCollection.findOne({ _id: new ObjectId(id), userId: user._id });
+    if (!file) {
+      return res.status(404).json({ error: 'Not found' });
+    } else {
+      return res.status(201).json(file);
+    }
+  }
+
+  static async getIndex(req, res) {
+    const user = await getUserByToken(req);
+    const page = parseInt(req.query.page) || 0;
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const parentId = req.query.parentId || 0;
+    const files = await dbClient.filesCollection.aggregate([
+      { $match: parentId},
+      { $skip: (page - 1) * 20},
+      { $limit: 20},
+    ]).toArray();
+
+    return res.json(files);
 }
 
 module.exports = FilesController;
