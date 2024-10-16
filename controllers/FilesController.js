@@ -35,12 +35,12 @@ class FilesController {
       );
       if (!parentFile) {
         return res.status(400).json({ error: 'Parent not found ' });
-      } if (parentFile.type !== 'foldr') {
+      } if (parentFile.type !== 'folder') {
         res.status(400).json({ error: 'Parent is not folder ' });
       }
     }
 
-    if (type === 'foldr') {
+    if (type === 'folder') {
       dbClient.filesCollection.insertOne(
         {
           name,
